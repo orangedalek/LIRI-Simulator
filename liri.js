@@ -23,7 +23,7 @@ inquirer.prompt([
 	message: "input your search query!",
 	name: "input",
 	when: function(answers){
-		return answers.command === "spotify-this-song" || answers.command === "movie-this" || answers.command === "do-what-it-says";
+		return answers.command === "spotify-this-song" || answers.command === "movie-this";
 	}
 }
 ])
@@ -156,6 +156,34 @@ function showMovie(){
 }
 
 // // function for do what it says
+
+function doTheThing(){
+	fs.readFile("random.txt", "utf-8", function(err, data){
+		if(err){
+			console.log(err);
+		}else{
+			var randomArr = data.split(",");
+			var command = randomArr[0];
+			var input = randomArr[1];
+			userInput.push(input);
+			// console.log(command);
+			// console.log(input);
+			switch(command){
+			case "my-tweets":
+			showTweets();
+			break;
+
+			case "spotify-this-song":
+			showSpotify();
+			break;
+
+			case "movie-this":
+			showMovie();
+			break;
+		}
+		}
+	})
+}
 // // bonus: function to write to a local file
 
 
