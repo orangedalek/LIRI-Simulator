@@ -5,8 +5,9 @@ var Twitter = require("twitter");
 var Spotify = require("node-spotify-api");
 var request = require("request");
 var fs = require("fs");
-command = [];
-title = ""
+var command = [];
+var userInput = [];
+var param = userInput[0];
 
 // get input
 inquirer.prompt([
@@ -29,10 +30,15 @@ inquirer.prompt([
 .then(function(user){
 	command = user.command;
 	input = user.input;
+	// push input to userInput array
+	userInput.push(input);
+
+	// console.log("UI: " + userInput);
+
 
 	getCommand();
 
-	console.log(command);
+	// console.log(command);
 	// console.log(input);
 
 });	
@@ -58,7 +64,7 @@ function getCommand(){
 	}
 }
 
-// getCommand();
+getCommand();
 
 // // function to see tweets
 	var client = new Twitter({
@@ -89,40 +95,66 @@ function showTweets(){
 
 // // function to see spotify
 function showSpotify(data){
-	console.log("Spotify");
+	// console.log("Spotify");
 
-
-	var Spotify = require('node-spotify-api');
-	var title = input;
+	var songName = userInput.pop();
+	// console.log(songName);
  
 	var spotify = new Spotify({
   	id: 'd6c8c32cebb045b8aed97a2d0357b999',
   	secret: 'da39759a2b5b404bb71d640a602d7826'
+
 });
+	if(songName.length === 0){
+		songName = "The Sign";
+}
  
-	spotify.search({ type: 'track', query: }, function(err, data) {
+	spotify.search({ type: 'track', query: songName, limit: 5 }, function(err, data) {
   	if (err) {
     return console.log('Error occurred: ' + err);
-  }
+  }else{
+
+  		var songInfo = data.tracks.items;
+
+  		for (var i = 0; i < songInfo.length; i++) {
+  			
  
+		console.log("Song Name: ", JSON.stringify(songInfo[i].name, null, 2));
+		console.log("Artist: ", JSON.stringify(songInfo[i].artists[0].name, null, 2));
+		console.log("Preview Link :", JSON.stringify(songInfo[i].preview_url, null, 2));
+		console.log("Album: ", JSON.stringify(songInfo[i].album.name, null, 2));
+	}
+  		}
 
 });
-
-
-	// if(input === undefined){
-	// 	songName = "The Sign";
-	// }else{
-	// 	console.log(data.tracks.artists.name);
-	// 	console.log(data.tracks.name);
-
-	// }
-
-	
-	
-
-
 }
 // // function to see movies
+function showMovie(){
+	// console.log("OMDB");
+	var movie = userInput.pop();
+	// console.log(movie);
+	if(movie.length === 0){
+
+		movie = "Mr Nobody";
+	}
+	request("http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&tomatoes=true&limit=1&apikey=40e9cece", function(err, response, body){
+		if(err){
+			console.log(err);
+		}else{
+			var movieInfo = JSON.parse(body);
+			console.log("Title: " + movieInfo.Title);
+			console.log("Year: " + movieInfo.Year);
+			console.log("IMDB Rating: " + movieInfo.imdbRating);
+			console.log("Rotten Tomatoes Rating: " + movieInfo.tomatoRating);
+			console.log("Country: " + movieInfo.Country);
+			console.log("Language: " + movieInfo.Language);
+			console.log("Plot: " + movieInfo.Plot);
+			console.log("Actors: " + movieInfo.Actors);
+		}
+	});
+
+}
+
 // // function for do what it says
 // // bonus: function to write to a local file
 
